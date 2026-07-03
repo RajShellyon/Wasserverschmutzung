@@ -15,6 +15,8 @@ const NarratorVideo = forwardRef(function NarratorVideo(
         onFirstVideoEnd = () => { },
         inset = -40,
         startAfterFirstUserAction = true,
+        initialPosition = null,
+        autoPlayInitialVideo = true,
     },
     ref,
 ) {
@@ -67,6 +69,42 @@ const NarratorVideo = forwardRef(function NarratorVideo(
         }
     }
 
+    function resolvePositionValue(value, axis) {
+        if (typeof value === 'number') {
+            return value
+        }
+
+        if (typeof value !== 'string') {
+            return 0
+        }
+
+        const trimmedValue = value.trim()
+        const numberValue = parseFloat(trimmedValue)
+
+        if (Number.isNaN(numberValue)) {
+            return 0
+        }
+
+        if (trimmedValue.endsWith('vw')) {
+            return (window.innerWidth * numberValue) / 100
+        }
+
+        if (trimmedValue.endsWith('vh')) {
+            return (window.innerHeight * numberValue) / 100
+        }
+
+        if (trimmedValue.endsWith('%')) {
+            const size = axis === 'x' ? window.innerWidth : window.innerHeight
+            return (size * numberValue) / 100
+        }
+
+        if (trimmedValue.endsWith('px')) {
+            return numberValue
+        }
+
+        return numberValue
+    }
+
     function getVideoElement(src) {
         return videoRefs.current[src]
     }
@@ -81,12 +119,23 @@ const NarratorVideo = forwardRef(function NarratorVideo(
     }
 
     useLayoutEffect(() => {
-        function placeAtTopRightOfAnchor() {
+        function placeNarrator() {
+            const widgetSize = getWidgetSize()
+
+            if (initialPosition) {
+                const nextPosition = clampPosition(
+                    resolvePositionValue(initialPosition.x, 'x'),
+                    resolvePositionValue(initialPosition.y, 'y'),
+                )
+
+                setPosition(nextPosition)
+                return
+            }
+
             const anchor = anchorRef.current
             if (!anchor) return
 
             const rect = anchor.getBoundingClientRect()
-            const widgetSize = getWidgetSize()
 
             const nextPosition = clampPosition(
                 rect.right - widgetSize - inset,
@@ -96,13 +145,13 @@ const NarratorVideo = forwardRef(function NarratorVideo(
             setPosition(nextPosition)
         }
 
-        requestAnimationFrame(placeAtTopRightOfAnchor)
-        window.addEventListener('resize', placeAtTopRightOfAnchor)
+        requestAnimationFrame(placeNarrator)
+        window.addEventListener('resize', placeNarrator)
 
         return () => {
-            window.removeEventListener('resize', placeAtTopRightOfAnchor)
+            window.removeEventListener('resize', placeNarrator)
         }
-    }, [anchorRef, inset])
+    }, [anchorRef, inset, initialPosition])
 
     useEffect(() => {
         setCurrentVideoSrc(videoSrc)
@@ -115,6 +164,7 @@ const NarratorVideo = forwardRef(function NarratorVideo(
     }, [videoSrc])
 
     useEffect(() => {
+        if (!autoPlayInitialVideo) return
         if (!position || autoplayTriedRef.current) return
 
         autoplayTriedRef.current = true
@@ -126,7 +176,7 @@ const NarratorVideo = forwardRef(function NarratorVideo(
         return () => {
             window.clearTimeout(timeoutId)
         }
-    }, [position, videoSrc])
+    }, [position, videoSrc, autoPlayInitialVideo])
 
     useEffect(() => {
         if (!startAfterFirstUserAction) return
