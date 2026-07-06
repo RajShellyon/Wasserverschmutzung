@@ -6,6 +6,19 @@ const ITEM_GAP = 10
 const MIN_DISTANCE = ITEM_SIZE + ITEM_GAP
 const EDGE_PADDING = 12
 
+const INTRO_VIDEO = "/videos/Intro_Game_Plastik.mp4"
+
+const videoByItemId = {
+    1: "/videos/Plastikflaschen.mp4",
+    2: "/videos/Fische.mp4",
+    3: "/videos/Plastiktueten.mp4",
+    4: "/videos/Wasserpflanzen.mp4",
+    5: "/videos/Einwegbecher.mp4",
+    6: "/videos/Meeresschildkroeten.mp4",
+    7: "/videos/Zahnbuersten.mp4",
+    8: "/videos/Muscheln.mp4",
+}
+
 const initialItems = [
     {
         id: 1,
@@ -183,6 +196,7 @@ export default function PlastikMission({ mission, onBack }) {
     const trashRef = useRef(null)
     const dragRef = useRef(null)
     const narratorAnchorRef = useRef(null)
+    const narratorVideoRef = useRef(null)
 
     const [items, setItems] = useState(initialItems)
     const [feedback, setFeedback] = useState("Ziehe nur den Müll in die Tonne.")
@@ -288,6 +302,14 @@ export default function PlastikMission({ mission, onBack }) {
             const droppedItem = prev.find((item) => item.id === drag.id)
             if (!droppedItem) return prev
 
+            if (overTrash) {
+                const nextVideoSrc = videoByItemId[droppedItem.id]
+
+                if (nextVideoSrc) {
+                    narratorVideoRef.current?.playVideoFromStart(nextVideoSrc)
+                }
+            }
+
             if (overTrash && droppedItem.trash) {
                 setFeedback(`Richtig! ${droppedItem.label}: ${droppedItem.info}`)
                 return prev.filter((item) => item.id !== droppedItem.id)
@@ -333,12 +355,14 @@ export default function PlastikMission({ mission, onBack }) {
     return (
         <section className="relative w-screen h-screen overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-300 to-blue-500">
             <NarratorVideo
+                ref={narratorVideoRef}
                 anchorRef={narratorAnchorRef}
-                videoSrc="/videos/Intro_Game_Plastik.mp4"
-                preloadSources={["/videos/Intro_Game_Plastik.mp4"]}
+                videoSrc={INTRO_VIDEO}
+                preloadSources={[INTRO_VIDEO, ...Object.values(videoByItemId)]}
                 initialPosition={{ x: "calc(100vw - 170px)", y: "18px" }}
                 inset={0}
                 autoPlayInitialVideo
+                startAfterFirstUserAction={false}
             />
 
             <style>
@@ -422,6 +446,10 @@ export default function PlastikMission({ mission, onBack }) {
 
                     <p className="text-slate-700 mt-2">
                         Ziehe nur Plastikmüll in die Mülltonne. Tiere und Pflanzen bleiben im Wasser.
+                    </p>
+
+                    <p className="mt-3 text-sm font-semibold text-blue-900">
+                        {feedback}
                     </p>
                 </header>
 

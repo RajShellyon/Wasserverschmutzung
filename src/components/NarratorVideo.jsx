@@ -5,12 +5,12 @@ import {
     useLayoutEffect,
     useRef,
     useState,
-} from 'react'
+} from "react"
 
 const NarratorVideo = forwardRef(function NarratorVideo(
     {
         anchorRef,
-        videoSrc = '/videos/Intro.mp4',
+        videoSrc = "/videos/Intro.mp4",
         preloadSources = [],
         onFirstVideoEnd = () => { },
         inset = -40,
@@ -22,6 +22,7 @@ const NarratorVideo = forwardRef(function NarratorVideo(
 ) {
     const widgetRef = useRef(null)
     const videoRefs = useRef({})
+    const playRequestIdRef = useRef(0)
     const autoplayTriedRef = useRef(false)
     const blockedByBrowserRef = useRef(false)
     const firstVideoEndHandledRef = useRef(false)
@@ -70,36 +71,29 @@ const NarratorVideo = forwardRef(function NarratorVideo(
     }
 
     function resolvePositionValue(value, axis) {
-        if (typeof value === 'number') {
-            return value
-        }
-
-        if (typeof value !== 'string') {
-            return 0
-        }
+        if (typeof value === "number") return value
+        if (typeof value !== "string") return 0
 
         const trimmedValue = value.trim()
         const numberValue = parseFloat(trimmedValue)
 
-        if (Number.isNaN(numberValue)) {
-            return 0
+        if (Number.isNaN(numberValue)) return 0
+
+        if (trimmedValue.startsWith("calc(100vw -")) {
+            return window.innerWidth - numberValue
         }
 
-        if (trimmedValue.endsWith('vw')) {
+        if (trimmedValue.endsWith("vw")) {
             return (window.innerWidth * numberValue) / 100
         }
 
-        if (trimmedValue.endsWith('vh')) {
+        if (trimmedValue.endsWith("vh")) {
             return (window.innerHeight * numberValue) / 100
         }
 
-        if (trimmedValue.endsWith('%')) {
-            const size = axis === 'x' ? window.innerWidth : window.innerHeight
+        if (trimmedValue.endsWith("%")) {
+            const size = axis === "x" ? window.innerWidth : window.innerHeight
             return (size * numberValue) / 100
-        }
-
-        if (trimmedValue.endsWith('px')) {
-            return numberValue
         }
 
         return numberValue
@@ -111,10 +105,12 @@ const NarratorVideo = forwardRef(function NarratorVideo(
 
     function pauseAllExcept(srcToKeep) {
         Object.entries(videoRefs.current).forEach(([src, video]) => {
-            if (!video || src === srcToKeep) return
+            if (!video) return
 
-            video.pause()
-            video.currentTime = 0
+            if (src !== srcToKeep) {
+                video.pause()
+                video.currentTime = 0
+            }
         })
     }
 
@@ -124,8 +120,8 @@ const NarratorVideo = forwardRef(function NarratorVideo(
 
             if (initialPosition) {
                 const nextPosition = clampPosition(
-                    resolvePositionValue(initialPosition.x, 'x'),
-                    resolvePositionValue(initialPosition.y, 'y'),
+                    resolvePositionValue(initialPosition.x, "x"),
+                    resolvePositionValue(initialPosition.y, "y"),
                 )
 
                 setPosition(nextPosition)
@@ -146,31 +142,21 @@ const NarratorVideo = forwardRef(function NarratorVideo(
         }
 
         requestAnimationFrame(placeNarrator)
-        window.addEventListener('resize', placeNarrator)
+        window.addEventListener("resize", placeNarrator)
 
         return () => {
-            window.removeEventListener('resize', placeNarrator)
+            window.removeEventListener("resize", placeNarrator)
         }
     }, [anchorRef, inset, initialPosition])
 
     useEffect(() => {
-        setCurrentVideoSrc(videoSrc)
-        autoplayTriedRef.current = false
-        blockedByBrowserRef.current = false
-        firstVideoEndHandledRef.current = false
-        setIsPlaying(false)
-        setHasStarted(false)
-        setHasEnded(false)
-    }, [videoSrc])
-
-    useEffect(() => {
-        if (!autoPlayInitialVideo) return
-        if (!position || autoplayTriedRef.current) return
+        if (!position || !autoPlayInitialVideo || autoplayTriedRef.current) return
 
         autoplayTriedRef.current = true
+        firstVideoEndHandledRef.current = false
 
         const timeoutId = window.setTimeout(() => {
-            tryStartWithSound(videoSrc)
+            playPreparedVideoFromStart(videoSrc, { allowBlockedRetry: true })
         }, 250)
 
         return () => {
@@ -189,54 +175,35 @@ const NarratorVideo = forwardRef(function NarratorVideo(
                 return
             }
 
-            restartCurrentVideo()
-            blockedByBrowserRef.current = false
+            playPreparedVideoFromStart(currentVideoSrc, {
+                allowBlockedRetry: true,
+            })
         }
 
-        window.addEventListener('pointerdown', startAfterUserAction)
-        window.addEventListener('keydown', startAfterUserAction)
+        window.addEventListener("pointerdown", startAfterUserAction)
+        window.addEventListener("keydown", startAfterUserAction)
 
         return () => {
-            window.removeEventListener('pointerdown', startAfterUserAction)
-            window.removeEventListener('keydown', startAfterUserAction)
+            window.removeEventListener("pointerdown", startAfterUserAction)
+            window.removeEventListener("keydown", startAfterUserAction)
         }
     }, [hasEnded, currentVideoSrc, startAfterFirstUserAction])
 
-    async function tryStartWithSound(src) {
-        const video = getVideoElement(src)
-        if (!video) return
+    async function playPreparedVideoFromStart(
+        nextVideoSrc,
+        { allowBlockedRetry = false } = {},
+    ) {
+        if (!nextVideoSrc) return
 
-        try {
-            pauseAllExcept(src)
-
-            video.currentTime = 0
-            video.volume = 1
-            video.muted = false
-
-            await video.play()
-
-            setCurrentVideoSrc(src)
-            setIsPlaying(true)
-            setHasStarted(true)
-            setHasEnded(false)
-            blockedByBrowserRef.current = false
-        } catch (error) {
-            console.log('Autoplay mit Ton wurde vom Browser blockiert:', error)
-
-            setIsPlaying(false)
-            setHasStarted(false)
-            setHasEnded(false)
-            blockedByBrowserRef.current = true
-        }
-    }
-
-    async function playPreparedVideoFromStart(nextVideoSrc) {
         const video = getVideoElement(nextVideoSrc)
 
         if (!video) {
-            console.warn('Video nicht gefunden oder nicht vorgeladen:', nextVideoSrc)
+            console.warn("Video nicht gefunden oder nicht vorgeladen:", nextVideoSrc)
             return
         }
+
+        const requestId = playRequestIdRef.current + 1
+        playRequestIdRef.current = requestId
 
         try {
             pauseAllExcept(nextVideoSrc)
@@ -245,13 +212,15 @@ const NarratorVideo = forwardRef(function NarratorVideo(
             setIsPlaying(false)
             setHasStarted(false)
             setHasEnded(false)
-            blockedByBrowserRef.current = false
 
+            video.pause()
             video.currentTime = 0
             video.volume = 1
             video.muted = false
 
             await video.play()
+
+            if (playRequestIdRef.current !== requestId) return
 
             setCurrentVideoSrc(nextVideoSrc)
             setIsPlaying(true)
@@ -259,12 +228,14 @@ const NarratorVideo = forwardRef(function NarratorVideo(
             setHasEnded(false)
             blockedByBrowserRef.current = false
         } catch (error) {
-            console.log('Video konnte nicht gestartet werden:', error)
+            if (playRequestIdRef.current !== requestId) return
+
+            console.log("Video konnte nicht gestartet werden:", error)
 
             setIsPlaying(false)
             setHasStarted(false)
             setHasEnded(false)
-            blockedByBrowserRef.current = true
+            blockedByBrowserRef.current = allowBlockedRetry
         }
     }
 
@@ -285,7 +256,7 @@ const NarratorVideo = forwardRef(function NarratorVideo(
             setHasEnded(false)
             blockedByBrowserRef.current = false
         } catch (error) {
-            console.log('Video konnte nicht gestartet werden:', error)
+            console.log("Video konnte nicht gestartet werden:", error)
 
             setIsPlaying(false)
             setHasStarted(false)
@@ -295,15 +266,7 @@ const NarratorVideo = forwardRef(function NarratorVideo(
     }
 
     async function restartCurrentVideo() {
-        const video = getVideoElement(currentVideoSrc)
-        if (!video) return
-
-        video.currentTime = 0
-        setHasEnded(false)
-        setHasStarted(false)
-        setIsPlaying(false)
-
-        await playCurrentVideo()
+        await playPreparedVideoFromStart(currentVideoSrc)
     }
 
     async function toggleVideo() {
@@ -408,8 +371,8 @@ const NarratorVideo = forwardRef(function NarratorVideo(
                         src={src}
                         className={
                             src === currentVideoSrc
-                                ? 'absolute inset-0 h-full w-full object-cover object-center pointer-events-none opacity-100'
-                                : 'absolute inset-0 h-full w-full object-cover object-center pointer-events-none opacity-0'
+                                ? "absolute inset-0 h-full w-full object-cover object-center pointer-events-none opacity-100"
+                                : "absolute inset-0 h-full w-full object-cover object-center pointer-events-none opacity-0"
                         }
                         playsInline
                         preload="auto"
