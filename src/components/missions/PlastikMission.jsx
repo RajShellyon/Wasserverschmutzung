@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import NarratorVideo from "../NarratorVideo"
 
 const ITEM_SIZE = 64
 const ITEM_GAP = 10
@@ -30,7 +31,7 @@ const initialItems = [
         id: 3,
         icon: "🛍️",
         label: "Plastiktüte",
-        info: "Plastiktüten werden oft vom Wind weggeweht und gelangen über Bäche und Flüsse ins Meer. Schildkröten verwechseln Plastiktüten häufig mit Quallen und verschlucken Plastiktüten.",
+        info: "Plastiktüten werden oft vom Wind weggeweht und gelangen über Bäche und Flüsse ins Meer. Schildkröten verwechseln Plastiktüten häufig mit Quallen.",
         trash: true,
         x: 63,
         y: 13,
@@ -70,7 +71,7 @@ const initialItems = [
         id: 7,
         icon: "🪥",
         label: "Zahnbürste",
-        info: "Zahnbürsten bestehen meist aus Kunststoff. Werden Zahnbürsten falsch entsorgt, können Flüsse Zahnbürsten bis ins Meer transportieren. Dort zerfallen Zahnbürsten nur sehr langsam.",
+        info: "Zahnbürsten bestehen meist aus Kunststoff. Werden Zahnbürsten falsch entsorgt, können Flüsse Zahnbürsten bis ins Meer transportieren.",
         trash: true,
         x: 39,
         y: 72,
@@ -144,7 +145,6 @@ function pushApart(items, seaRect, activeId = null) {
                 if (distance < MIN_DISTANCE) {
                     const overlap = MIN_DISTANCE - distance
                     const force = overlap * strength
-
                     const moveX = (dx / distance) * force
                     const moveY = (dy / distance) * force
 
@@ -182,6 +182,7 @@ export default function PlastikMission({ mission, onBack }) {
     const seaRef = useRef(null)
     const trashRef = useRef(null)
     const dragRef = useRef(null)
+    const narratorAnchorRef = useRef(null)
 
     const [items, setItems] = useState(initialItems)
     const [feedback, setFeedback] = useState("Ziehe nur den Müll in die Tonne.")
@@ -331,6 +332,15 @@ export default function PlastikMission({ mission, onBack }) {
 
     return (
         <section className="relative w-screen h-screen overflow-hidden bg-gradient-to-b from-sky-200 via-cyan-300 to-blue-500">
+            <NarratorVideo
+                anchorRef={narratorAnchorRef}
+                videoSrc="/videos/Intro_Game_Plastik.mp4"
+                preloadSources={["/videos/Intro_Game_Plastik.mp4"]}
+                initialPosition={{ x: "calc(100vw - 170px)", y: "18px" }}
+                inset={0}
+                autoPlayInitialVideo
+            />
+
             <style>
                 {`
                     @keyframes driftA {
@@ -396,7 +406,10 @@ export default function PlastikMission({ mission, onBack }) {
             <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_20%_20%,white,transparent_25%),radial-gradient(circle_at_70%_60%,white,transparent_18%)]" />
 
             <div className="relative z-10 flex h-full flex-col p-2">
-                <header className="rounded-3xl bg-white/85 p-5 shadow-xl backdrop-blur text-center max-w-3xl mx-auto">
+                <header
+                    ref={narratorAnchorRef}
+                    className="relative rounded-3xl bg-white/85 p-5 shadow-xl backdrop-blur text-center max-w-3xl mx-auto"
+                >
                     <div className="text-4xl mb-2">{mission.icon}</div>
 
                     <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-1">
@@ -460,13 +473,6 @@ export default function PlastikMission({ mission, onBack }) {
                     >
                         <div className="text-5xl">🗑️</div>
                         <p className="mt-2 text-sm font-bold">Mülltonne</p>
-                    </div>
-
-                    <div className="absolute bottom-6 left-6 max-w-xl rounded-2xl bg-white/90 p-4 shadow-xl">
-                        <p className="font-bold text-blue-950">{feedback}</p>
-                        <p className="text-sm text-slate-600 mt-1">
-                            Noch {remainingTrash} Müllteile im Wasser.
-                        </p>
                     </div>
 
                     {isComplete && (
