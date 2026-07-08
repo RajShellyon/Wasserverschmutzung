@@ -291,6 +291,7 @@ export default function MikroplastikMission({ mission, onBack }) {
 
     const [started, setStarted] = useState(false)
     const [foundIds, setFoundIds] = useState([])
+    const [scannedIds, setScannedIds] = useState([])
     const [scannerPosition, setScannerPosition] = useState({ x: 52, y: 48 })
     const [pulseKey, setPulseKey] = useState(0)
     const [activeParticleId, setActiveParticleId] = useState(null)
@@ -298,7 +299,7 @@ export default function MikroplastikMission({ mission, onBack }) {
     const [challengeHits, setChallengeHits] = useState([])
     const [wrongItems, setWrongItems] = useState([])
     const [wrongSolutionId, setWrongSolutionId] = useState(null)
-    const [captainLine, setCaptainLine] = useState("Bereit für den Tauchgang? Starte das Mini-U-Boot und suche unsichtbare Spuren.")
+    const [captainLine, setCaptainLine] = useState("Bereit für den Tauchgang? Starte die Lupe. Die Sonarwelle schaltet die Hover-Spuren frei.")
 
     const activeParticle = particles.find((particle) => particle.id === activeParticleId) ?? null
     const foundCount = foundIds.length
@@ -354,8 +355,50 @@ export default function MikroplastikMission({ mission, onBack }) {
         return getDistance(particlePoint, scannerPoint)
     }
 
+    function getDistanceToPoint(particle, point) {
+        const rect = getOceanRect()
+        if (!rect || !point) return Number.POSITIVE_INFINITY
+
+        const particlePoint = {
+            x: (particle.x / 100) * rect.width,
+            y: (particle.y / 100) * rect.height,
+        }
+
+        const scannerPoint = {
+            x: (point.x / 100) * rect.width,
+            y: (point.y / 100) * rect.height,
+        }
+
+        return getDistance(particlePoint, scannerPoint)
+    }
+
+    function scanParticlesAt(point) {
+        const newlyScannedParticles = particles.filter((particle) => {
+            if (foundIds.includes(particle.id) || scannedIds.includes(particle.id)) return false
+            return getDistanceToPoint(particle, point) <= SCANNER_RADIUS
+        })
+
+        if (newlyScannedParticles.length === 0) {
+            setCaptainLine("Sonarwelle gesendet. Noch keine unsichtbare Spur berührt — versuche es näher am Signal.")
+            return
+        }
+
+        setScannedIds((prev) => [
+            ...prev,
+            ...newlyScannedParticles
+                .map((particle) => particle.id)
+                .filter((id) => !prev.includes(id)),
+        ])
+
+        if (newlyScannedParticles.length === 1) {
+            setCaptainLine(`${newlyScannedParticles[0].label} gescannt. Hover ist jetzt aktiv: fahre darüber und tippe die Spur an.`)
+        } else {
+            setCaptainLine(`${newlyScannedParticles.length} Spuren gescannt. Hover ist jetzt für diese Spuren aktiv.`)
+        }
+    }
+
     function isParticleScannable(particle) {
-        return getDistanceToScanner(particle) <= SCANNER_RADIUS
+        return scannedIds.includes(particle.id)
     }
 
     function getSignalStrength() {
@@ -378,7 +421,7 @@ export default function MikroplastikMission({ mission, onBack }) {
     function handleStart() {
         setStarted(true)
         setPulseKey((prev) => prev + 1)
-        setCaptainLine("Bewege das U-Boot. Wenn der Sonar-Kreis stark leuchtet, tippe die Spur an.")
+        setCaptainLine("Bewege die Lupe. Linksklick sendet die Sonarwelle. Berührt sie eine Spur, wird deren Hover-Funktion freigeschaltet.")
     }
 
     function handleOceanPointerMove(event) {
@@ -388,15 +431,20 @@ export default function MikroplastikMission({ mission, onBack }) {
 
     function handleOceanPointerDown(event) {
         if (!started || activeParticle || isComplete) return
-        updateScanner(event)
+
+        const nextPoint = pointFromPointer(event)
+        if (!nextPoint) return
+
+        setScannerPosition(nextPoint)
         setPulseKey((prev) => prev + 1)
+        scanParticlesAt(nextPoint)
     }
 
     function openParticleChallenge(particle) {
         if (!started || foundIds.includes(particle.id) || activeParticle) return
 
         if (!isParticleScannable(particle)) {
-            setCaptainLine("Fast! Der Scanner muss näher an die Spur, dann wird sie klar sichtbar.")
+            setCaptainLine("Erst mit einer Sonarwelle freischalten: Linksklick auf die Lupe, wenn sie nah genug ist.")
             setPulseKey((prev) => prev + 1)
             return
         }
@@ -464,13 +512,14 @@ export default function MikroplastikMission({ mission, onBack }) {
         setPulseKey((prev) => prev + 1)
 
         if (!allFoundAfterThis) {
-            setCaptainLine("Weiter tauchen. Das Sonar findet die nächste unsichtbare Spur.")
+            setCaptainLine("Weiter tauchen. Scanne die nächste unsichtbare Spur und nutze danach Hover.")
         }
     }
 
     function resetMission() {
         setStarted(false)
         setFoundIds([])
+        setScannedIds([])
         setScannerPosition({ x: 52, y: 48 })
         setPulseKey(0)
         setActiveParticleId(null)
@@ -478,7 +527,7 @@ export default function MikroplastikMission({ mission, onBack }) {
         setChallengeHits([])
         setWrongItems([])
         setWrongSolutionId(null)
-        setCaptainLine("Bereit für den Tauchgang? Starte das Mini-U-Boot und suche unsichtbare Spuren.")
+        setCaptainLine("Bereit für den Tauchgang? Starte die Lupe. Die Sonarwelle schaltet die Hover-Spuren frei.")
     }
 
     const signalStrength = getSignalStrength()
@@ -699,10 +748,10 @@ export default function MikroplastikMission({ mission, onBack }) {
                     {particles.map((particle) => {
                         const isFound = foundIds.includes(particle.id)
                         const distance = getDistanceToScanner(particle)
+                        const isScanned = scannedIds.includes(particle.id)
                         const isClose = started && !isFound && distance <= SCANNER_RADIUS
-                        const isNear = started && !isFound && distance <= NEAR_RADIUS
-                        const opacity = isClose ? 1 : isNear ? 0.23 : 0
-                        const scale = isClose ? 1.08 : 0.74
+                        const opacity = isScanned ? 1 : 0
+                        const scale = isScanned && isClose ? 1.08 : 0.96
 
                         if (isFound) {
                             return (
@@ -721,19 +770,23 @@ export default function MikroplastikMission({ mission, onBack }) {
                                 key={particle.id}
                                 type="button"
                                 onClick={() => openParticleChallenge(particle)}
-                                className={`${particle.drift} absolute z-40 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${particle.glowClass} text-3xl shadow-2xl ring-4 ring-white/70 transition-all duration-300 hover:scale-110 active:scale-95`}
+                                className={`${particle.drift} group absolute z-40 flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300 active:scale-95`}
                                 style={{
                                     left: `${particle.x}%`,
                                     top: `${particle.y}%`,
                                     opacity,
                                     transform: `translate(-50%, -50%) scale(${scale})`,
-                                    filter: isClose ? "blur(0px) saturate(1.2)" : "blur(2px) saturate(0.6)",
-                                    pointerEvents: isNear ? "auto" : "none",
+                                    pointerEvents: isScanned ? "auto" : "none",
                                 }}
-                                aria-label={`${particle.label} untersuchen`}
-                                title={particle.label}
+                                aria-label={isScanned ? `${particle.label} untersuchen` : undefined}
+                                title={isScanned ? particle.label : undefined}
                             >
-                                <span className="drop-shadow-sm">{particle.icon}</span>
+                                <span className="absolute inset-0 rounded-full border-4 border-white/80 bg-cyan-100/20 shadow-[0_0_30px_rgba(255,255,255,0.55)] transition-all duration-300 group-hover:scale-110 group-hover:bg-white/60 group-focus-visible:scale-110 group-focus-visible:bg-white/60" />
+                                <span className="absolute h-7 w-7 rounded-full border-2 border-white/70 bg-cyan-200/50 shadow-inner transition-all duration-300 group-hover:opacity-0 group-focus-visible:opacity-0" />
+                                <span className="absolute text-lg font-black text-white/90 drop-shadow transition-all duration-300 group-hover:scale-75 group-hover:opacity-0 group-focus-visible:scale-75 group-focus-visible:opacity-0">?</span>
+                                <span className={`absolute flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br ${particle.glowClass} text-3xl opacity-0 shadow-2xl ring-4 ring-white/80 blur-sm transition-all duration-300 group-hover:scale-110 group-hover:opacity-100 group-hover:blur-0 group-focus-visible:scale-110 group-focus-visible:opacity-100 group-focus-visible:blur-0`}>
+                                    <span className="drop-shadow-sm">{particle.icon}</span>
+                                </span>
                             </button>
                         )
                     })}
