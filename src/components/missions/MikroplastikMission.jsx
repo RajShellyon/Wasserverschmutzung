@@ -14,463 +14,982 @@ const videoByParticleId = {
     8: "/videos/Mikroplastik_Abfluss.mp4",
 }
 
-const LENS_RADIUS = 120
+const SCANNER_RADIUS = 145
+const NEAR_RADIUS = 360
 
-const initialParticles = [
+const particles = [
     {
         id: 1,
         icon: "🧵",
-        label: "Kunststofffaser",
-        info: "Sehr gut entdeckt! Kleine Kunststofffasern können beim Waschen aus Kleidung gelöst werden und über das Abwasser ins Wasser gelangen.",
-        x: 14,
-        y: 22,
-        drift: "micro-drift-a",
-        dotClass: "bg-fuchsia-300",
+        label: "Faser-Fund",
+        shortLabel: "Faser",
+        source: "Kleidung kann beim Waschen winzige Kunststofffasern verlieren.",
+        sticker: "🧶",
+        x: 16,
+        y: 26,
+        drift: "micro-sub-drift-a",
+        glowClass: "from-fuchsia-200 to-pink-300",
+        mini: {
+            title: "Faser-Wirbel entwirren",
+            instruction: "Tippe nur die bunten Kunststofffasern an. Wasserpflanzen bleiben im Meer.",
+            collectLabel: "Fasern gelöst",
+            scene: "🌊🧵",
+            items: [
+                { id: "f1", emoji: "🧵", label: "Kunststofffaser", correct: true, x: 18, y: 34 },
+                { id: "f2", emoji: "🧶", label: "Faserknäuel", correct: true, x: 58, y: 22 },
+                { id: "f3", emoji: "〰️", label: "feine Faser", correct: true, x: 74, y: 56 },
+                { id: "f4", emoji: "🌿", label: "Wasserpflanze", correct: false, x: 38, y: 64 },
+                { id: "f5", emoji: "🐟", label: "kleiner Fisch", correct: false, x: 82, y: 28 },
+                { id: "f6", emoji: "🍃", label: "Blatt", correct: false, x: 28, y: 18 },
+            ],
+        },
+        solutions: [
+            { id: "wash", icon: "🧺", title: "Schonend waschen", text: "Wäschesack, volle Trommel und weniger Abrieb helfen.", correct: true },
+            { id: "hot", icon: "🔥", title: "Heißer waschen", text: "Das macht Fasern nicht automatisch besser.", correct: false },
+            { id: "glitter", icon: "✨", title: "Mehr Duftperlen", text: "Zusätze lösen das Mikroplastik-Problem nicht.", correct: false },
+        ],
     },
     {
         id: 2,
         icon: "⚫",
-        label: "Reifenabrieb",
-        info: "Richtig! Beim Fahren lösen sich winzige Teilchen von Reifen. Regen kann sie von Straßen in Gullys, Bäche und Flüsse spülen.",
+        label: "Straßen-Spur",
+        shortLabel: "Reifen",
+        source: "Reifenabrieb wird vom Regen von Straßen in Gullys gespült.",
+        sticker: "🛞",
         x: 31,
-        y: 64,
-        drift: "micro-drift-b",
-        dotClass: "bg-slate-700",
+        y: 68,
+        drift: "micro-sub-drift-b",
+        glowClass: "from-slate-300 to-slate-700",
+        mini: {
+            title: "Gully-Alarm stoppen",
+            instruction: "Fange die dunklen Reifenkrümel ab, bevor der Regen sie wegspült.",
+            collectLabel: "Krümel im Filter",
+            scene: "🌧️🛞",
+            items: [
+                { id: "r1", emoji: "⚫", label: "Reifenabrieb", correct: true, x: 21, y: 28 },
+                { id: "r2", emoji: "▪️", label: "Gummikrümel", correct: true, x: 52, y: 48 },
+                { id: "r3", emoji: "⚫", label: "Straßenstaub", correct: true, x: 72, y: 24 },
+                { id: "r4", emoji: "💧", label: "Regentropfen", correct: false, x: 34, y: 66 },
+                { id: "r5", emoji: "🪨", label: "Stein", correct: false, x: 79, y: 64 },
+                { id: "r6", emoji: "🍂", label: "Laub", correct: false, x: 44, y: 20 },
+            ],
+        },
+        solutions: [
+            { id: "bike", icon: "🚲", title: "Kurze Wege radeln", text: "Weniger Autofahrten bedeuten weniger Reifenabrieb.", correct: true },
+            { id: "fast", icon: "🏎️", title: "Schneller fahren", text: "Mehr Abrieb kann dadurch sogar entstehen.", correct: false },
+            { id: "washstreet", icon: "🧽", title: "Alles in den Gully", text: "Der Gully führt Spuren oft weiter ins Wasser.", correct: false },
+        ],
     },
     {
         id: 3,
         icon: "🔹",
-        label: "Plastiksplitter",
-        info: "Gut gesehen! Größere Plastikteile können mit der Zeit zerbrechen. Daraus entstehen immer kleinere Plastiksplitter.",
-        x: 48,
-        y: 33,
-        drift: "micro-drift-c",
-        dotClass: "bg-sky-300",
+        label: "Splitter-Fund",
+        shortLabel: "Splitter",
+        source: "Größere Plastikteile zerbrechen langsam zu kleinen Splittern.",
+        sticker: "🔷",
+        x: 47,
+        y: 32,
+        drift: "micro-sub-drift-c",
+        glowClass: "from-sky-200 to-blue-400",
+        mini: {
+            title: "Splitter oder Stein?",
+            instruction: "Sortiere die scharfen blauen Plastikscherben aus dem Kiesbett.",
+            collectLabel: "Splitter sortiert",
+            scene: "🪨🔹",
+            items: [
+                { id: "p1", emoji: "🔹", label: "Plastikscherbe", correct: true, x: 18, y: 48 },
+                { id: "p2", emoji: "🔷", label: "Plastiksplitter", correct: true, x: 47, y: 24 },
+                { id: "p3", emoji: "🟦", label: "Kunststoffstück", correct: true, x: 77, y: 46 },
+                { id: "p4", emoji: "🪨", label: "Kieselstein", correct: false, x: 30, y: 70 },
+                { id: "p5", emoji: "🐚", label: "Muschel", correct: false, x: 63, y: 68 },
+                { id: "p6", emoji: "💎", label: "Glanzstein", correct: false, x: 83, y: 18 },
+            ],
+        },
+        solutions: [
+            { id: "reuse", icon: "🥤", title: "Mehrweg nutzen", text: "Je weniger Einwegplastik herumliegt, desto weniger Splitter entstehen.", correct: true },
+            { id: "crush", icon: "🦶", title: "Plastik zertreten", text: "Dann wird es erst recht zu kleineren Teilen.", correct: false },
+            { id: "hide", icon: "🕳️", title: "Vergraben", text: "Vergraben löst das Problem nicht dauerhaft.", correct: false },
+        ],
     },
     {
         id: 4,
         icon: "🟦",
-        label: "Folienrest",
-        info: "Richtig! Dünne Folien können zerreißen und als kleine Kunststoffstücke im Wasser treiben.",
+        label: "Folien-Fund",
+        shortLabel: "Folie",
+        source: "Dünne Folien reißen leicht und treiben als winzige Stücke weiter.",
+        sticker: "🎐",
         x: 70,
-        y: 23,
-        drift: "micro-drift-a",
-        dotClass: "bg-blue-300",
+        y: 25,
+        drift: "micro-sub-drift-a",
+        glowClass: "from-cyan-200 to-blue-300",
+        mini: {
+            title: "Flatter-Folie einfangen",
+            instruction: "Tippe die blauen Folienstücke an. Luftblasen dürfen weiterblubbern.",
+            collectLabel: "Folie gefangen",
+            scene: "💨🟦",
+            items: [
+                { id: "fo1", emoji: "🟦", label: "Folienrest", correct: true, x: 23, y: 30 },
+                { id: "fo2", emoji: "🔷", label: "Folienfetzen", correct: true, x: 63, y: 20 },
+                { id: "fo3", emoji: "🧊", label: "durchsichtige Folie", correct: true, x: 78, y: 58 },
+                { id: "fo4", emoji: "🫧", label: "Blase", correct: false, x: 40, y: 58 },
+                { id: "fo5", emoji: "🐠", label: "Fisch", correct: false, x: 17, y: 68 },
+                { id: "fo6", emoji: "🌊", label: "Welle", correct: false, x: 85, y: 28 },
+            ],
+        },
+        solutions: [
+            { id: "box", icon: "🍱", title: "Dose statt Folie", text: "Brotdosen und wiederverwendbare Verpackung sparen Folienmüll.", correct: true },
+            { id: "light", icon: "🎈", title: "Dünnere Folie", text: "Dünn reißt besonders schnell.", correct: false },
+            { id: "throw", icon: "🌬️", title: "Wegfliegen lassen", text: "Wind trägt Folie oft direkt in die Umwelt.", correct: false },
+        ],
     },
     {
         id: 5,
         icon: "✨",
-        label: "Kunststoffkügelchen",
-        info: "Entdeckt! Manche winzigen Kunststoffteilchen stammen aus Produkten oder entstehen, wenn Plastik zerfällt.",
-        x: 82,
-        y: 57,
-        drift: "micro-drift-b",
-        dotClass: "bg-violet-300",
+        label: "Glitzer-Kügelchen",
+        shortLabel: "Kügelchen",
+        source: "Winzige Kunststoffkügelchen können aus Produkten oder zerfallendem Plastik stammen.",
+        sticker: "🫧",
+        x: 83,
+        y: 55,
+        drift: "micro-sub-drift-b",
+        glowClass: "from-violet-200 to-fuchsia-300",
+        mini: {
+            title: "Glitzer nicht mit Blasen verwechseln",
+            instruction: "Sammle nur die festen Kunststoffkügelchen. Echte Blasen zerplatzen harmlos.",
+            collectLabel: "Kügelchen gesammelt",
+            scene: "✨🫧",
+            items: [
+                { id: "k1", emoji: "✨", label: "Kunststoffkügelchen", correct: true, x: 18, y: 22 },
+                { id: "k2", emoji: "🟣", label: "Mikrokügelchen", correct: true, x: 51, y: 50 },
+                { id: "k3", emoji: "🔵", label: "Plastikperle", correct: true, x: 77, y: 28 },
+                { id: "k4", emoji: "🫧", label: "Blase", correct: false, x: 32, y: 68 },
+                { id: "k5", emoji: "⭐", label: "Lichtreflex", correct: false, x: 68, y: 72 },
+                { id: "k6", emoji: "🐚", label: "Muschelpunkt", correct: false, x: 84, y: 58 },
+            ],
+        },
+        solutions: [
+            { id: "label", icon: "🔍", title: "Produkte prüfen", text: "Auf feste Plastikpartikel und Glitzer in Produkten achten.", correct: true },
+            { id: "moreglitter", icon: "💄", title: "Mehr Glitzer", text: "Mehr Glitzer kann mehr kleine Teilchen bedeuten.", correct: false },
+            { id: "rinse", icon: "🚿", title: "Einfach wegspülen", text: "Wegspülen bringt Teilchen ins Abwasser.", correct: false },
+        ],
     },
     {
         id: 6,
         icon: "▫️",
-        label: "Styroporstückchen",
-        info: "Sehr gut! Styropor zerbröselt leicht. Die kleinen Stückchen können lange im Wasser bleiben.",
-        x: 23,
-        y: 41,
-        drift: "micro-drift-c",
-        dotClass: "bg-white",
+        label: "Styropor-Brösel",
+        shortLabel: "Styropor",
+        source: "Styropor zerbröselt leicht und bleibt als helle Partikel lange im Wasser.",
+        sticker: "☁️",
+        x: 24,
+        y: 43,
+        drift: "micro-sub-drift-c",
+        glowClass: "from-white to-slate-200",
+        mini: {
+            title: "Schaum-Brösel retten",
+            instruction: "Fische die weißen Styroporbrösel heraus. Tier-Eier und Wolkenspiegel bleiben unberührt.",
+            collectLabel: "Brösel gefiltert",
+            scene: "☁️▫️",
+            items: [
+                { id: "s1", emoji: "▫️", label: "Styropor", correct: true, x: 20, y: 36 },
+                { id: "s2", emoji: "◽", label: "Schaumbrösel", correct: true, x: 55, y: 24 },
+                { id: "s3", emoji: "▫️", label: "leichter Brösel", correct: true, x: 73, y: 62 },
+                { id: "s4", emoji: "🥚", label: "Fischei", correct: false, x: 36, y: 68 },
+                { id: "s5", emoji: "☁️", label: "Spiegelung", correct: false, x: 78, y: 28 },
+                { id: "s6", emoji: "🐡", label: "Kugelfisch", correct: false, x: 27, y: 20 },
+            ],
+        },
+        solutions: [
+            { id: "pack", icon: "📦", title: "Verpackung richtig entsorgen", text: "Nichts zerbröseln lassen und Abfall sicher sammeln.", correct: true },
+            { id: "break", icon: "💥", title: "Klein brechen", text: "Dann entstehen noch mehr kleine Brösel.", correct: false },
+            { id: "float", icon: "🌊", title: "Schwimmen lassen", text: "Styropor treibt weit und lange.", correct: false },
+        ],
     },
     {
         id: 7,
         icon: "🪢",
-        label: "Netzabrieb",
-        info: "Richtig! Auch Seile, Netze und andere Kunststoffmaterialien können kleine Teilchen verlieren.",
-        x: 56,
-        y: 75,
-        drift: "micro-drift-a",
-        dotClass: "bg-emerald-300",
+        label: "Netz-Fasern",
+        shortLabel: "Netz",
+        source: "Seile, Netze und Kunststoffe können durch Reibung kleine Fasern verlieren.",
+        sticker: "🕸️",
+        x: 57,
+        y: 76,
+        drift: "micro-sub-drift-a",
+        glowClass: "from-emerald-200 to-teal-400",
+        mini: {
+            title: "Netz-Knoten lösen",
+            instruction: "Löse die künstlichen Netzfäden aus den Algen. Die Tiere bleiben frei.",
+            collectLabel: "Fäden gelöst",
+            scene: "🌿🪢",
+            items: [
+                { id: "n1", emoji: "🪢", label: "Netzfaser", correct: true, x: 24, y: 30 },
+                { id: "n2", emoji: "🕸️", label: "Kunststofffaden", correct: true, x: 56, y: 54 },
+                { id: "n3", emoji: "〰️", label: "Seilabrieb", correct: true, x: 82, y: 34 },
+                { id: "n4", emoji: "🌱", label: "Alge", correct: false, x: 37, y: 70 },
+                { id: "n5", emoji: "🦀", label: "Krabbe", correct: false, x: 70, y: 72 },
+                { id: "n6", emoji: "🐙", label: "Oktopus", correct: false, x: 16, y: 58 },
+            ],
+        },
+        solutions: [
+            { id: "repair", icon: "🧰", title: "Netze reparieren", text: "Kaputte Kunststoffnetze sammeln, flicken oder richtig entsorgen.", correct: true },
+            { id: "cut", icon: "✂️", title: "Ins Wasser schneiden", text: "Kleine Fäden im Wasser werden zum Problem.", correct: false },
+            { id: "leave", icon: "⚓", title: "Liegen lassen", text: "Verlorene Netze können weiter zerfasern.", correct: false },
+        ],
     },
     {
         id: 8,
         icon: "🧼",
-        label: "Teilchen aus dem Abfluss",
-        info: "Gut gefunden! Manche Stoffe gelangen über Waschbecken, Dusche oder Waschmaschine in das Abwasser.",
-        x: 39,
-        y: 17,
-        drift: "micro-drift-b",
-        dotClass: "bg-cyan-200",
+        label: "Abfluss-Spur",
+        shortLabel: "Abfluss",
+        source: "Über Waschbecken, Dusche oder Waschmaschine können Teilchen ins Abwasser gelangen.",
+        sticker: "🚿",
+        x: 40,
+        y: 18,
+        drift: "micro-sub-drift-b",
+        glowClass: "from-cyan-100 to-teal-300",
+        mini: {
+            title: "Rohr-Weiche umstellen",
+            instruction: "Tippe die Teilchen an, die nicht einfach durch den Abfluss verschwinden sollen.",
+            collectLabel: "Abfluss-Spuren abgefangen",
+            scene: "🚿🧼",
+            items: [
+                { id: "a1", emoji: "🧼", label: "Produkt-Rest", correct: true, x: 21, y: 28 },
+                { id: "a2", emoji: "✨", label: "Mikroteilchen", correct: true, x: 50, y: 20 },
+                { id: "a3", emoji: "🧵", label: "Waschfaser", correct: true, x: 74, y: 48 },
+                { id: "a4", emoji: "💧", label: "Wasser", correct: false, x: 32, y: 68 },
+                { id: "a5", emoji: "🫧", label: "Schaumblase", correct: false, x: 58, y: 70 },
+                { id: "a6", emoji: "🔩", label: "Rohrventil", correct: false, x: 84, y: 24 },
+            ],
+        },
+        solutions: [
+            { id: "filter", icon: "🧃", title: "Filter & Sieb nutzen", text: "Sieb, Filter und bewusste Produkte halten Spuren zurück.", correct: true },
+            { id: "flush", icon: "🚽", title: "Wegspülen", text: "Wegspülen verlagert das Problem ins Abwasser.", correct: false },
+            { id: "foam", icon: "🫧", title: "Mehr Schaum", text: "Mehr Schaum filtert keine Kunststoffteilchen.", correct: false },
+        ],
     },
 ]
+
+const allVideoSources = [INTRO_VIDEO, ...Object.values(videoByParticleId)]
 
 function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max)
 }
 
+function getCorrectItems(particle) {
+    return particle.mini.items.filter((item) => item.correct)
+}
+
+function getDistance(pointA, pointB) {
+    const dx = pointA.x - pointB.x
+    const dy = pointA.y - pointB.y
+    return Math.sqrt(dx * dx + dy * dy)
+}
+
 export default function MikroplastikMission({ mission, onBack }) {
-    const seaRef = useRef(null)
+    const oceanRef = useRef(null)
     const narratorAnchorRef = useRef(null)
     const narratorVideoRef = useRef(null)
 
     const [started, setStarted] = useState(false)
     const [foundIds, setFoundIds] = useState([])
-    const [lensPosition, setLensPosition] = useState({ x: 50, y: 48 })
-    const [feedback, setFeedback] = useState(
-        "Klicke auf „Starten“ und untersuche das Wasser mit der Lupe.",
-    )
+    const [scannerPosition, setScannerPosition] = useState({ x: 52, y: 48 })
+    const [pulseKey, setPulseKey] = useState(0)
+    const [activeParticleId, setActiveParticleId] = useState(null)
+    const [modalStage, setModalStage] = useState("challenge")
+    const [challengeHits, setChallengeHits] = useState([])
+    const [wrongItems, setWrongItems] = useState([])
+    const [wrongSolutionId, setWrongSolutionId] = useState(null)
+    const [captainLine, setCaptainLine] = useState("Bereit für den Tauchgang? Starte das Mini-U-Boot und suche unsichtbare Spuren.")
 
+    const activeParticle = particles.find((particle) => particle.id === activeParticleId) ?? null
     const foundCount = foundIds.length
-    const totalCount = initialParticles.length
-    const remainingCount = totalCount - foundCount
+    const totalCount = particles.length
+    const progressPercent = Math.round((foundCount / totalCount) * 100)
     const isComplete = foundCount === totalCount
 
-    function getSeaRect() {
-        return seaRef.current?.getBoundingClientRect() ?? null
+    function getOceanRect() {
+        return oceanRef.current?.getBoundingClientRect() ?? null
     }
 
-    function getLensPositionFromPointer(event) {
-        const sea = getSeaRect()
-        if (!sea) return null
+    function pointFromPointer(event) {
+        const rect = getOceanRect()
+        if (!rect) return null
 
         return {
-            x: clamp(((event.clientX - sea.left) / sea.width) * 100, 0, 100),
-            y: clamp(((event.clientY - sea.top) / sea.height) * 100, 0, 100),
+            x: clamp(((event.clientX - rect.left) / rect.width) * 100, 3, 97),
+            y: clamp(((event.clientY - rect.top) / rect.height) * 100, 7, 93),
         }
     }
 
-    function updateLensFromPointer(event) {
-        const nextPosition = getLensPositionFromPointer(event)
-        if (!nextPosition) return
-
-        setLensPosition(nextPosition)
+    function updateScanner(event) {
+        const nextPoint = pointFromPointer(event)
+        if (!nextPoint) return
+        setScannerPosition(nextPoint)
     }
 
-    function getDistanceToLens(particle) {
-        const sea = getSeaRect()
-        if (!sea) return Number.POSITIVE_INFINITY
+    function getParticlePixelPoint(particle) {
+        const rect = getOceanRect()
+        if (!rect) return null
 
-        const lensX = (lensPosition.x / 100) * sea.width
-        const lensY = (lensPosition.y / 100) * sea.height
-        const particleX = (particle.x / 100) * sea.width
-        const particleY = (particle.y / 100) * sea.height
-
-        const dx = particleX - lensX
-        const dy = particleY - lensY
-
-        return Math.sqrt(dx * dx + dy * dy)
+        return {
+            x: (particle.x / 100) * rect.width,
+            y: (particle.y / 100) * rect.height,
+        }
     }
 
-    function isParticleInsideLens(particle) {
-        return getDistanceToLens(particle) <= LENS_RADIUS
+    function getScannerPixelPoint() {
+        const rect = getOceanRect()
+        if (!rect) return null
+
+        return {
+            x: (scannerPosition.x / 100) * rect.width,
+            y: (scannerPosition.y / 100) * rect.height,
+        }
     }
 
-    function isPointerCloseToParticle(event, particle) {
-        const sea = getSeaRect()
-        if (!sea) return false
+    function getDistanceToScanner(particle) {
+        const particlePoint = getParticlePixelPoint(particle)
+        const scannerPoint = getScannerPixelPoint()
 
-        const pointerX = event.clientX - sea.left
-        const pointerY = event.clientY - sea.top
-        const particleX = (particle.x / 100) * sea.width
-        const particleY = (particle.y / 100) * sea.height
+        if (!particlePoint || !scannerPoint) return Number.POSITIVE_INFINITY
+        return getDistance(particlePoint, scannerPoint)
+    }
 
-        const dx = particleX - pointerX
-        const dy = particleY - pointerY
+    function isParticleScannable(particle) {
+        return getDistanceToScanner(particle) <= SCANNER_RADIUS
+    }
 
-        return Math.sqrt(dx * dx + dy * dy) <= 70
+    function getSignalStrength() {
+        const hiddenParticles = particles.filter((particle) => !foundIds.includes(particle.id))
+        if (hiddenParticles.length === 0) return 100
+
+        const nearestDistance = Math.min(...hiddenParticles.map(getDistanceToScanner))
+        return clamp(Math.round((1 - nearestDistance / NEAR_RADIUS) * 100), 0, 100)
+    }
+
+    function getSignalLine() {
+        const signal = getSignalStrength()
+        if (!started) return "Sonar schläft noch."
+        if (signal >= 82) return "Piep! Direkt unter dem Scanner!"
+        if (signal >= 58) return "Heißer Strom: sehr nah dran."
+        if (signal >= 32) return "Leises Signal: weiter scannen."
+        return "Noch ruhig. Fahre das U-Boot langsam weiter."
     }
 
     function handleStart() {
         setStarted(true)
-        setFeedback(
-            "Bewege die Lupe über das Wasser und klicke auf die versteckten Mikroplastikteilchen.",
-        )
+        setPulseKey((prev) => prev + 1)
+        setCaptainLine("Bewege das U-Boot. Wenn der Sonar-Kreis stark leuchtet, tippe die Spur an.")
     }
 
-    function handleSeaPointerMove(event) {
-        if (!started || isComplete) return
-        updateLensFromPointer(event)
+    function handleOceanPointerMove(event) {
+        if (!started || activeParticle || isComplete) return
+        updateScanner(event)
     }
 
-    function handleSeaPointerDown(event) {
-        if (!started || isComplete) return
-        updateLensFromPointer(event)
+    function handleOceanPointerDown(event) {
+        if (!started || activeParticle || isComplete) return
+        updateScanner(event)
+        setPulseKey((prev) => prev + 1)
     }
 
-    function handleParticleClick(event, particle) {
-        event.preventDefault()
-        event.stopPropagation()
+    function openParticleChallenge(particle) {
+        if (!started || foundIds.includes(particle.id) || activeParticle) return
 
-        if (!started || isComplete || foundIds.includes(particle.id)) return
-
-        updateLensFromPointer(event)
-
-        const canFindParticle =
-            isParticleInsideLens(particle) || isPointerCloseToParticle(event, particle)
-
-        if (!canFindParticle) {
-            setFeedback("Nutze zuerst die Lupe, damit du das Teilchen genauer erkennst.")
+        if (!isParticleScannable(particle)) {
+            setCaptainLine("Fast! Der Scanner muss näher an die Spur, dann wird sie klar sichtbar.")
+            setPulseKey((prev) => prev + 1)
             return
         }
 
-        const nextVideoSrc = videoByParticleId[particle.id]
-
-        if (nextVideoSrc) {
-            narratorVideoRef.current?.playVideoFromStart(nextVideoSrc)
-        }
-
-        setFoundIds((prev) => [...prev, particle.id])
-        setFeedback(`${particle.label}: ${particle.info}`)
+        setActiveParticleId(particle.id)
+        setModalStage("challenge")
+        setChallengeHits([])
+        setWrongItems([])
+        setWrongSolutionId(null)
+        setCaptainLine(`${particle.label} entdeckt. Jetzt braucht das U-Boot deine Hilfe.`)
     }
 
+    function handleChallengeItemClick(item) {
+        if (!activeParticle || modalStage !== "challenge") return
+
+        if (!item.correct) {
+            setWrongItems((prev) => [...new Set([...prev, item.id])])
+            setCaptainLine("Guter Blick, aber das gehört ins Wasser. Suche nur die Mikroplastik-Spuren.")
+            window.setTimeout(() => {
+                setWrongItems((prev) => prev.filter((id) => id !== item.id))
+            }, 700)
+            return
+        }
+
+        if (challengeHits.includes(item.id)) return
+
+        const nextHits = [...challengeHits, item.id]
+        setChallengeHits(nextHits)
+        setCaptainLine("Treffer! Der Fund wird im Mini-Filter gesammelt.")
+
+        if (nextHits.length >= getCorrectItems(activeParticle).length) {
+            const nextVideoSrc = videoByParticleId[activeParticle.id]
+            if (nextVideoSrc) {
+                narratorVideoRef.current?.playVideoFromStart(nextVideoSrc)
+            }
+
+            setModalStage("narrator")
+            setCaptainLine("Beweis gesichert. Der Erzähler erklärt den Fund direkt im Narrator-Fenster.")
+        }
+    }
+
+    function handleSolutionClick(solution) {
+        if (!activeParticle || modalStage !== "solution") return
+
+        if (!solution.correct) {
+            setWrongSolutionId(solution.id)
+            setCaptainLine("Das klingt spannend, hilft hier aber nicht genug. Such die Idee, die die Ursache stoppt.")
+            window.setTimeout(() => setWrongSolutionId(null), 800)
+            return
+        }
+
+        setWrongSolutionId(null)
+        setFoundIds((prev) => (prev.includes(activeParticle.id) ? prev : [...prev, activeParticle.id]))
+        setModalStage("sticker")
+        setCaptainLine(`${activeParticle.shortLabel}-Sticker eingeklebt! Das Meer ist ein Stück sicherer.`)
+    }
+
+    function closeActiveModal() {
+        const allFoundAfterThis = foundIds.length === totalCount
+        setActiveParticleId(null)
+        setChallengeHits([])
+        setWrongItems([])
+        setWrongSolutionId(null)
+        setModalStage("challenge")
+        setPulseKey((prev) => prev + 1)
+
+        if (!allFoundAfterThis) {
+            setCaptainLine("Weiter tauchen. Das Sonar findet die nächste unsichtbare Spur.")
+        }
+    }
+
+    function resetMission() {
+        setStarted(false)
+        setFoundIds([])
+        setScannerPosition({ x: 52, y: 48 })
+        setPulseKey(0)
+        setActiveParticleId(null)
+        setModalStage("challenge")
+        setChallengeHits([])
+        setWrongItems([])
+        setWrongSolutionId(null)
+        setCaptainLine("Bereit für den Tauchgang? Starte das Mini-U-Boot und suche unsichtbare Spuren.")
+    }
+
+    const signalStrength = getSignalStrength()
+
     return (
-        <section className="relative w-screen h-screen overflow-hidden bg-gradient-to-b from-sky-100 via-cyan-300 to-blue-600">
-            <NarratorVideo
-                ref={narratorVideoRef}
-                anchorRef={narratorAnchorRef}
-                videoSrc={INTRO_VIDEO}
-                preloadSources={[INTRO_VIDEO, ...Object.values(videoByParticleId)]}
-                initialPosition={{ x: "calc(100vw - 170px)", y: "18px" }}
-                inset={0}
-                autoPlayInitialVideo
-                startAfterFirstUserAction={false}
-            />
+        <section className="relative h-screen w-screen overflow-hidden bg-[#071a3a] text-slate-950">
+            <div className="relative z-[130]">
+                <NarratorVideo
+                    ref={narratorVideoRef}
+                    anchorRef={narratorAnchorRef}
+                    videoSrc={INTRO_VIDEO}
+                    preloadSources={allVideoSources}
+                    initialPosition={{ x: "40vw", y: "56px" }}
+                    inset={0}
+                    autoPlayInitialVideo
+                    startAfterFirstUserAction={false}
+                />
+            </div>
 
             <style>
                 {`
-                    @keyframes microDriftA {
-                        0% { transform: translate(-50%, -50%) translate(0, 0) rotate(-4deg); }
-                        25% { transform: translate(-50%, -50%) translate(10px, -7px) rotate(3deg); }
-                        50% { transform: translate(-50%, -50%) translate(3px, -14px) rotate(7deg); }
-                        75% { transform: translate(-50%, -50%) translate(-8px, -5px) rotate(-2deg); }
-                        100% { transform: translate(-50%, -50%) translate(0, 0) rotate(-4deg); }
+                    @keyframes microOceanGlow {
+                        0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+                        50% { filter: hue-rotate(8deg) brightness(1.08); }
                     }
 
-                    @keyframes microDriftB {
-                        0% { transform: translate(-50%, -50%) translate(0, 0) rotate(3deg); }
-                        25% { transform: translate(-50%, -50%) translate(-10px, -4px) rotate(-4deg); }
-                        50% { transform: translate(-50%, -50%) translate(-4px, -13px) rotate(2deg); }
-                        75% { transform: translate(-50%, -50%) translate(9px, -3px) rotate(5deg); }
-                        100% { transform: translate(-50%, -50%) translate(0, 0) rotate(3deg); }
+                    @keyframes microSubFloat {
+                        0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(-2deg); }
+                        50% { transform: translate(-50%, -50%) translateY(-9px) rotate(2deg); }
                     }
 
-                    @keyframes microDriftC {
-                        0% { transform: translate(-50%, -50%) translate(0, 0) rotate(-2deg); }
-                        25% { transform: translate(-50%, -50%) translate(8px, 5px) rotate(4deg); }
-                        50% { transform: translate(-50%, -50%) translate(-6px, -10px) rotate(-5deg); }
-                        75% { transform: translate(-50%, -50%) translate(-12px, 2px) rotate(2deg); }
-                        100% { transform: translate(-50%, -50%) translate(0, 0) rotate(-2deg); }
+                    @keyframes microScannerPulse {
+                        0% { transform: translate(-50%, -50%) scale(0.45); opacity: 0.85; }
+                        80% { opacity: 0.08; }
+                        100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
                     }
 
-                    @keyframes microWave {
-                        0% { transform: translateX(-18px); opacity: 0.2; }
-                        50% { transform: translateX(18px); opacity: 0.55; }
-                        100% { transform: translateX(-18px); opacity: 0.2; }
+                    @keyframes microScannerSpin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
                     }
 
-                    @keyframes microBubbleRise {
-                        0% { transform: translateY(40px) scale(0.7); opacity: 0; }
-                        20% { opacity: 0.35; }
-                        100% { transform: translateY(-155px) scale(1.1); opacity: 0; }
+                    @keyframes microBubbleFloat {
+                        0% { transform: translateY(60px) scale(0.6); opacity: 0; }
+                        18% { opacity: 0.45; }
+                        100% { transform: translateY(-180px) scale(1.2); opacity: 0; }
                     }
 
-                    @keyframes lensPulse {
-                        0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.35), 0 22px 55px rgba(15,23,42,0.35); }
-                        50% { box-shadow: 0 0 0 10px rgba(255,255,255,0.08), 0 22px 55px rgba(15,23,42,0.35); }
-                        100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.35), 0 22px 55px rgba(15,23,42,0.35); }
+                    @keyframes microFishSwimLeft {
+                        0% { transform: translateX(0) scaleX(1); }
+                        50% { transform: translateX(-26px) scaleX(1); }
+                        100% { transform: translateX(0) scaleX(1); }
                     }
 
-                    .micro-drift-a { animation: microDriftA 5.8s ease-in-out infinite; }
-                    .micro-drift-b { animation: microDriftB 6.8s ease-in-out infinite; }
-                    .micro-drift-c { animation: microDriftC 7.6s ease-in-out infinite; }
-
-                    .micro-wave {
-                        animation: microWave 5.2s ease-in-out infinite;
+                    @keyframes microPlantWave {
+                        0%, 100% { transform: rotate(-4deg) translateY(0); }
+                        50% { transform: rotate(5deg) translateY(-4px); }
                     }
 
-                    .micro-bubble {
-                        position: absolute;
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 9999px;
-                        background: rgba(255,255,255,0.32);
-                        animation: microBubbleRise 6.2s ease-in-out infinite;
+                    @keyframes microSubDriftA {
+                        0%, 100% { transform: translate(-50%, -50%) translate(0, 0) rotate(-5deg); }
+                        25% { transform: translate(-50%, -50%) translate(10px, -8px) rotate(4deg); }
+                        60% { transform: translate(-50%, -50%) translate(-6px, 10px) rotate(-2deg); }
                     }
 
-                    .micro-lens {
-                        animation: lensPulse 2.2s ease-in-out infinite;
+                    @keyframes microSubDriftB {
+                        0%, 100% { transform: translate(-50%, -50%) translate(0, 0) rotate(5deg); }
+                        35% { transform: translate(-50%, -50%) translate(-12px, 7px) rotate(-4deg); }
+                        70% { transform: translate(-50%, -50%) translate(8px, -10px) rotate(2deg); }
                     }
+
+                    @keyframes microSubDriftC {
+                        0%, 100% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+                        40% { transform: translate(-50%, -50%) translate(9px, 9px) rotate(6deg); }
+                        75% { transform: translate(-50%, -50%) translate(-10px, -5px) rotate(-5deg); }
+                    }
+
+                    @keyframes microFoundPop {
+                        0% { transform: scale(0.35) rotate(-18deg); opacity: 0; }
+                        60% { transform: scale(1.18) rotate(8deg); opacity: 1; }
+                        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+                    }
+
+                    @keyframes microItemWiggle {
+                        0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+                        20% { transform: translate(-50%, -50%) rotate(-10deg) scale(1.06); }
+                        40% { transform: translate(-50%, -50%) rotate(10deg) scale(1.06); }
+                        60% { transform: translate(-50%, -50%) rotate(-7deg) scale(1.04); }
+                        80% { transform: translate(-50%, -50%) rotate(7deg) scale(1.04); }
+                    }
+
+                    @keyframes microCardWiggle {
+                        0%, 100% { transform: rotate(0deg); }
+                        20% { transform: rotate(-3deg) scale(1.02); }
+                        40% { transform: rotate(3deg) scale(1.02); }
+                        60% { transform: rotate(-2deg) scale(1.01); }
+                        80% { transform: rotate(2deg) scale(1.01); }
+                    }
+
+                    @keyframes microBadgePulse {
+                        0%, 100% { transform: translateY(0) scale(1); }
+                        50% { transform: translateY(-4px) scale(1.04); }
+                    }
+
+                    @keyframes microWaterClean {
+                        0% { opacity: 0; transform: translateY(22px); }
+                        100% { opacity: 1; transform: translateY(0); }
+                    }
+
+                    .micro-ocean-glow { animation: microOceanGlow 8s ease-in-out infinite; }
+                    .micro-submarine { animation: microSubFloat 3.2s ease-in-out infinite; }
+                    .micro-scanner-pulse { animation: microScannerPulse 1.25s ease-out forwards; }
+                    .micro-scanner-spin { animation: microScannerSpin 5.5s linear infinite; }
+                    .micro-bubble-float { animation: microBubbleFloat 7s ease-in-out infinite; }
+                    .micro-fish-left { animation: microFishSwimLeft 5.5s ease-in-out infinite; }
+                    .micro-plant { animation: microPlantWave 4s ease-in-out infinite; transform-origin: bottom center; }
+                    .micro-sub-drift-a { animation: microSubDriftA 6.6s ease-in-out infinite; }
+                    .micro-sub-drift-b { animation: microSubDriftB 7.1s ease-in-out infinite; }
+                    .micro-sub-drift-c { animation: microSubDriftC 7.8s ease-in-out infinite; }
+                    .micro-found-pop { animation: microFoundPop 0.55s cubic-bezier(.17,.84,.44,1) both; }
+                    .micro-item-wiggle { animation: microItemWiggle 0.55s ease-in-out; }
+                    .micro-card-wiggle { animation: microCardWiggle 0.55s ease-in-out; }
+                    .micro-badge-pulse { animation: microBadgePulse 2.2s ease-in-out infinite; }
+                    .micro-water-clean { animation: microWaterClean 0.8s ease-out both; }
                 `}
             </style>
 
-            <div className="absolute inset-0 opacity-45 bg-[radial-gradient(circle_at_18%_18%,white,transparent_24%),radial-gradient(circle_at_72%_58%,white,transparent_18%),radial-gradient(circle_at_35%_82%,white,transparent_16%)]" />
+            <div className="absolute inset-0 micro-ocean-glow bg-[radial-gradient(circle_at_25%_8%,rgba(142,234,255,0.88),transparent_24%),radial-gradient(circle_at_75%_32%,rgba(20,184,166,0.34),transparent_24%),linear-gradient(180deg,#b9f6ff_0%,#2bb9e6_38%,#075985_100%)]" />
+            <div className="absolute inset-0 opacity-[0.18] bg-[linear-gradient(rgba(255,255,255,.5)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.5)_1px,transparent_1px)] bg-[length:72px_72px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_110%,rgba(2,6,23,0.42),transparent_56%)]" />
 
-            <div className="relative z-10 flex h-full flex-col p-2">
-                <header
-                    ref={narratorAnchorRef}
-                    className="relative rounded-3xl bg-white/85 p-5 shadow-xl backdrop-blur text-center max-w-3xl mx-auto"
-                >
-                    <div className="text-4xl mb-2">{mission.icon}</div>
+            <div ref={narratorAnchorRef} className="pointer-events-none absolute left-[40%] top-6 z-[115] h-28 w-28 -translate-x-1/2 md:left-[40%] md:top-7" />
 
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-600 mb-1">
-                        Mission {mission.id}
-                    </p>
-
-                    <h1 className="text-3xl font-extrabold text-blue-950">
-                        Mikroplastik im Wasser entdecken
-                    </h1>
-
-                    <p className="text-slate-700 mt-2">
-                        Das Wasser sieht sauber aus. Doch winzige Kunststoffteilchen sind oft kaum sichtbar.
-                    </p>
-
-                    <p className="mt-3 text-sm font-semibold text-blue-900">
-                        {feedback}
-                    </p>
-
-                    {started && !isComplete && (
-                        <div className="mt-4 mx-auto max-w-md">
-                            <div className="flex justify-between text-xs font-bold text-blue-900 mb-1">
-                                <span>Gefunden: {foundCount} von {totalCount}</span>
-                                <span>Noch versteckt: {remainingCount}</span>
+            <div className="relative z-10 flex h-full flex-col p-4 md:p-6">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="rounded-[2rem] border-2 border-white/65 bg-white/80 px-5 py-4 shadow-2xl backdrop-blur-md md:max-w-[460px]">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-cyan-100 text-3xl shadow-inner">
+                                🚢
                             </div>
-
-                            <div className="h-3 overflow-hidden rounded-full bg-blue-100 shadow-inner">
-                                <div
-                                    className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                                    style={{
-                                        width: `${(foundCount / totalCount) * 100}%`,
-                                    }}
-                                />
+                            <div>
+                                <p className="text-[11px] font-black uppercase tracking-[0.32em] text-cyan-700">
+                                    Mission {mission?.id ?? 2}
+                                </p>
+                                <h1 className="text-xl font-black leading-tight text-slate-950 md:text-3xl">
+                                    Mikroplastik-Tauchgang
+                                </h1>
                             </div>
                         </div>
-                    )}
-                </header>
-
-                <main
-                    ref={seaRef}
-                    onPointerMove={handleSeaPointerMove}
-                    onPointerDown={handleSeaPointerDown}
-                    className="relative mt-2 flex-1 rounded-3xl border border-white/40 bg-white/15 shadow-inner overflow-hidden touch-none"
-                >
-                    <div className="absolute inset-0 pointer-events-none">
-                        <div className="micro-wave absolute left-[7%] top-[12%] text-2xl opacity-45">〰️</div>
-                        <div className="micro-wave absolute left-[24%] top-[36%] text-2xl opacity-35">〰️</div>
-                        <div className="micro-wave absolute left-[39%] top-[16%] text-2xl opacity-40">〰️</div>
-                        <div className="micro-wave absolute left-[48%] top-[61%] text-2xl opacity-30">〰️</div>
-                        <div className="micro-wave absolute left-[63%] top-[24%] text-2xl opacity-45">〰️</div>
-                        <div className="micro-wave absolute left-[73%] top-[45%] text-2xl opacity-35">〰️</div>
-                        <div className="micro-wave absolute left-[86%] top-[20%] text-2xl opacity-35">〰️</div>
-                        <div className="micro-wave absolute left-[87%] top-[73%] text-2xl opacity-30">〰️</div>
-                        <div className="micro-wave absolute left-[16%] top-[77%] text-2xl opacity-30">〰️</div>
-                        <div className="micro-wave absolute left-[58%] top-[84%] text-2xl opacity-25">〰️</div>
-
-                        <span className="micro-bubble left-[13%] bottom-[7%]" />
-                        <span className="micro-bubble left-[28%] bottom-[21%]" />
-                        <span className="micro-bubble left-[44%] bottom-[10%]" />
-                        <span className="micro-bubble left-[61%] bottom-[18%]" />
-                        <span className="micro-bubble left-[78%] bottom-[11%]" />
+                        <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700 md:text-base">
+                            {captainLine}
+                        </p>
                     </div>
 
-                    {started && !isComplete && (
+                    <div className="hidden rounded-[2rem] border-2 border-white/50 bg-slate-950/75 p-4 text-white shadow-2xl backdrop-blur-md md:block md:w-[320px] lg:w-[380px]">
+                        <div className="flex items-center justify-between">
+                            <p className="text-[11px] font-black uppercase tracking-[0.35em] text-cyan-200">Sonar</p>
+                            <span className="rounded-full bg-cyan-100 px-3 py-1 text-sm font-black text-cyan-900">{signalStrength}%</span>
+                        </div>
+                        <div className="mt-3 h-4 overflow-hidden rounded-full bg-white/15 shadow-inner">
+                            <div
+                                className="h-full rounded-full bg-cyan-300 transition-all duration-300"
+                                style={{ width: `${signalStrength}%` }}
+                            />
+                        </div>
+                        <p className="mt-3 text-sm font-bold text-cyan-50">{getSignalLine()}</p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={onBack}
+                        className="rounded-2xl border-2 border-white/70 bg-white px-5 py-3 text-sm font-black text-cyan-800 shadow-xl transition hover:-translate-y-0.5 hover:bg-cyan-50 active:scale-95"
+                    >
+                        Zurück
+                    </button>
+                </div>
+
+                <main
+                    ref={oceanRef}
+                    onPointerMove={handleOceanPointerMove}
+                    onPointerDown={handleOceanPointerDown}
+                    className="relative mt-4 flex-1 overflow-hidden rounded-[2.5rem] border-2 border-white/55 bg-cyan-300/20 shadow-[inset_0_-80px_100px_rgba(8,47,73,0.34)] touch-none"
+                >
+                    <div className="pointer-events-none absolute inset-0">
+                        <span className="micro-bubble-float absolute bottom-[4%] left-[7%] h-4 w-4 rounded-full border border-white/60 bg-white/20" style={{ animationDelay: "0.2s" }} />
+                        <span className="micro-bubble-float absolute bottom-[8%] left-[18%] h-3 w-3 rounded-full border border-white/60 bg-white/20" style={{ animationDelay: "2.1s" }} />
+                        <span className="micro-bubble-float absolute bottom-[0%] left-[37%] h-5 w-5 rounded-full border border-white/60 bg-white/20" style={{ animationDelay: "1.4s" }} />
+                        <span className="micro-bubble-float absolute bottom-[6%] left-[61%] h-3 w-3 rounded-full border border-white/60 bg-white/20" style={{ animationDelay: "3.4s" }} />
+                        <span className="micro-bubble-float absolute bottom-[2%] left-[79%] h-4 w-4 rounded-full border border-white/60 bg-white/20" style={{ animationDelay: "0.9s" }} />
+                        <span className="micro-bubble-float absolute bottom-[14%] left-[92%] h-6 w-6 rounded-full border border-white/50 bg-white/15" style={{ animationDelay: "2.8s" }} />
+
+                        <span className="micro-fish-left absolute left-[12%] top-[58%] text-3xl opacity-40">🐟</span>
+                        <span className="micro-fish-left absolute left-[78%] top-[35%] text-4xl opacity-35" style={{ animationDelay: "1.1s" }}>🐠</span>
+                        <span className="micro-fish-left absolute left-[64%] top-[72%] text-3xl opacity-30" style={{ animationDelay: "2.2s" }}>🐡</span>
+
+                        <span className="micro-plant absolute bottom-[-8px] left-[6%] text-7xl opacity-55">🌿</span>
+                        <span className="micro-plant absolute bottom-[-10px] left-[21%] text-6xl opacity-45" style={{ animationDelay: "0.8s" }}>🪸</span>
+                        <span className="micro-plant absolute bottom-[-12px] left-[78%] text-7xl opacity-50" style={{ animationDelay: "1.6s" }}>🌿</span>
+                        <span className="micro-plant absolute bottom-[-14px] left-[91%] text-6xl opacity-45" style={{ animationDelay: "2.4s" }}>🪸</span>
+                    </div>
+
+                    {started && !activeParticle && !isComplete && (
                         <div
-                            className="micro-lens pointer-events-none absolute z-20 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full border-[10px] border-white/85 bg-white/15 shadow-2xl ring-4 ring-blue-200/60 backdrop-blur-[1px]"
-                            style={{
-                                left: `${lensPosition.x}%`,
-                                top: `${lensPosition.y}%`,
-                            }}
+                            className="pointer-events-none absolute z-20 h-[290px] w-[290px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+                            style={{ left: `${scannerPosition.x}%`, top: `${scannerPosition.y}%` }}
                         >
-                            <div className="absolute inset-3 rounded-full border border-blue-200/80 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.75),rgba(255,255,255,0.08)_35%,rgba(14,165,233,0.12)_100%)]" />
-                            <div className="absolute -bottom-14 -right-10 h-20 w-7 rotate-[-42deg] rounded-full bg-slate-700 shadow-xl" />
-                            <div className="absolute -bottom-16 -right-12 h-8 w-8 rounded-full bg-slate-800" />
+                            <div key={pulseKey} className="micro-scanner-pulse absolute left-1/2 top-1/2 h-44 w-44 rounded-full border-4 border-white/80 bg-cyan-100/15" />
+                            <div className="absolute inset-7 rounded-full border-[10px] border-white/90 bg-white/10 shadow-[0_25px_60px_rgba(15,23,42,0.30)] backdrop-blur-[1px]">
+                                <div className="micro-scanner-spin absolute inset-4 rounded-full border border-dashed border-cyan-50/80" />
+                                <div className="absolute left-1/2 top-5 h-[calc(100%-40px)] w-px -translate-x-1/2 bg-white/60" />
+                                <div className="absolute left-5 top-1/2 h-px w-[calc(100%-40px)] -translate-y-1/2 bg-white/60" />
+                                <div className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20" />
+                            </div>
+                            <div className="absolute left-[75%] top-[78%] h-20 w-9 rotate-[-42deg] rounded-full bg-slate-950 shadow-2xl" />
                         </div>
                     )}
 
-                    {initialParticles.map((particle) => {
+                    {particles.map((particle) => {
                         const isFound = foundIds.includes(particle.id)
-                        const isVisible = started && !isFound && isParticleInsideLens(particle)
+                        const distance = getDistanceToScanner(particle)
+                        const isClose = started && !isFound && distance <= SCANNER_RADIUS
+                        const isNear = started && !isFound && distance <= NEAR_RADIUS
+                        const opacity = isClose ? 1 : isNear ? 0.23 : 0
+                        const scale = isClose ? 1.08 : 0.74
 
-                        if (isFound) return null
+                        if (isFound) {
+                            return (
+                                <div
+                                    key={particle.id}
+                                    className="micro-found-pop pointer-events-none absolute z-10 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white/70 bg-white/20 text-3xl opacity-40"
+                                    style={{ left: `${particle.x}%`, top: `${particle.y}%` }}
+                                >
+                                    ✓
+                                </div>
+                            )
+                        }
 
                         return (
                             <button
                                 key={particle.id}
                                 type="button"
-                                onClick={(event) => handleParticleClick(event, particle)}
-                                className={`${particle.drift} absolute z-30 flex h-12 w-12 items-center justify-center rounded-full text-xl shadow-lg ring-2 ring-white/70 transition-all duration-300 select-none active:scale-90 ${particle.dotClass}`}
+                                onClick={() => openParticleChallenge(particle)}
+                                className={`${particle.drift} absolute z-40 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${particle.glowClass} text-3xl shadow-2xl ring-4 ring-white/70 transition-all duration-300 hover:scale-110 active:scale-95`}
                                 style={{
                                     left: `${particle.x}%`,
                                     top: `${particle.y}%`,
-                                    opacity: isVisible ? 1 : 0,
-                                    filter: isVisible ? "blur(0px)" : "blur(5px)",
+                                    opacity,
+                                    transform: `translate(-50%, -50%) scale(${scale})`,
+                                    filter: isClose ? "blur(0px) saturate(1.2)" : "blur(2px) saturate(0.6)",
+                                    pointerEvents: isNear ? "auto" : "none",
                                 }}
+                                aria-label={`${particle.label} untersuchen`}
                                 title={particle.label}
                             >
-                                <span className="pointer-events-none drop-shadow-sm">
-                                    {particle.icon}
-                                </span>
+                                <span className="drop-shadow-sm">{particle.icon}</span>
                             </button>
                         )
                     })}
 
                     {!started && (
-                        <div className="absolute inset-0 z-30 flex items-center justify-center bg-blue-950/35 backdrop-blur-sm p-4">
-                            <div className="max-w-xl rounded-3xl bg-white p-7 text-center shadow-2xl">
-                                <div className="text-5xl mb-3">🔬</div>
-
-                                <h2 className="text-2xl font-extrabold text-blue-950">
-                                    Schau genauer hin!
+                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/30 p-5 backdrop-blur-sm">
+                            <div className="max-w-2xl rounded-[2.5rem] border-4 border-white bg-white/95 p-7 text-center shadow-2xl">
+                                <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-cyan-100 text-6xl shadow-inner">🚢</div>
+                                <h2 className="mt-4 text-3xl font-black text-slate-950 md:text-5xl">
+                                    Tauchgang starten!
                                 </h2>
-
-                                <p className="mt-3 text-slate-700 leading-relaxed">
-                                    Mikroplastik ist so klein, dass man es oft kaum sehen kann.
-                                    Nutze die Lupe, entdecke versteckte Teilchen und finde heraus,
-                                    wo sie sich im Wasser befinden.
+                                <p className="mx-auto mt-4 max-w-lg text-base font-semibold leading-relaxed text-slate-700 md:text-lg">
+                                    Steuere das Mini-U-Boot mit deinem Finger oder der Maus. Das Sonar leuchtet, wenn Mikroplastik nah ist.
                                 </p>
-
                                 <button
                                     type="button"
                                     onClick={handleStart}
-                                    className="mt-6 rounded-xl bg-blue-600 px-6 py-3 text-white text-sm font-bold shadow hover:bg-blue-700 active:scale-95 transition"
+                                    className="mt-7 rounded-3xl bg-cyan-500 px-8 py-4 text-lg font-black text-white shadow-xl transition hover:-translate-y-1 hover:bg-cyan-600 active:scale-95"
                                 >
-                                    Starten
+                                    Abtauchen
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {isComplete && (
-                        <div className="absolute inset-0 z-40 flex items-center justify-center bg-blue-950/40 backdrop-blur-sm p-4">
-                            <div className="rounded-3xl bg-white p-8 text-center shadow-2xl max-w-xl">
-                                <div className="text-5xl mb-3">🎉</div>
-
-                                <h2 className="text-2xl font-extrabold text-blue-950">
-                                    Mission geschafft!
+                    {isComplete && !activeParticle && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-cyan-950/35 p-5 backdrop-blur-sm">
+                            <div className="micro-water-clean max-w-3xl rounded-[2.5rem] border-4 border-white bg-white/95 p-8 text-center shadow-2xl">
+                                <div className="text-7xl">🌊✨🐠</div>
+                                <h2 className="mt-4 text-3xl font-black text-slate-950 md:text-5xl">
+                                    Wasserfilter aktiviert!
                                 </h2>
-
-                                <p className="text-slate-700 mt-2 mb-5 leading-relaxed">
-                                    Du hast alle versteckten Mikroplastikteilchen entdeckt.
-                                    Jetzt weißt du: Auch scheinbar sauberes Wasser kann winzige
-                                    Kunststoffteilchen enthalten.
+                                <p className="mx-auto mt-4 max-w-2xl text-base font-semibold leading-relaxed text-slate-700 md:text-lg">
+                                    Du hast alle acht Mikroplastik-Spuren gefunden, untersucht und für jede Spur eine Schutzidee gesammelt.
                                 </p>
-
-                                <button
-                                    type="button"
-                                    onClick={onBack}
-                                    className="rounded-xl bg-blue-600 px-5 py-3 text-white text-sm font-bold hover:bg-blue-700 active:scale-95 transition"
-                                >
-                                    Zurück zur Kursauswahl
-                                </button>
+                                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={onBack}
+                                        className="rounded-3xl bg-cyan-600 px-7 py-4 text-sm font-black text-white shadow-xl transition hover:bg-cyan-700 active:scale-95"
+                                    >
+                                        Zur Kursauswahl
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={resetMission}
+                                        className="rounded-3xl bg-white px-7 py-4 text-sm font-black text-cyan-800 shadow-xl ring-2 ring-cyan-100 transition hover:bg-cyan-50 active:scale-95"
+                                    >
+                                        Nochmal tauchen
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
                 </main>
 
-                {!isComplete && (
-                    <button
-                        type="button"
-                        onClick={onBack}
-                        className="mx-auto mt-5 rounded-xl bg-white px-5 py-3 text-blue-700 text-sm font-bold shadow hover:bg-blue-50 active:scale-95 transition"
-                    >
-                        Zurück zur Kursauswahl
-                    </button>
-                )}
+                <div className="mt-4 rounded-[2rem] border-2 border-white/60 bg-white/80 p-3 shadow-2xl backdrop-blur-md">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-2xl bg-slate-950 px-4 py-3 text-white shadow-inner">
+                                <p className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-200">Stickeralbum</p>
+                                <p className="text-sm font-black">{foundCount} von {totalCount} Spuren</p>
+                            </div>
+                            <div className="h-4 w-36 overflow-hidden rounded-full bg-slate-200 shadow-inner md:w-52">
+                                <div
+                                    className="h-full rounded-full bg-cyan-500 transition-all duration-500"
+                                    style={{ width: `${progressPercent}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-2">
+                            {particles.map((particle) => {
+                                const isFound = foundIds.includes(particle.id)
+
+                                return (
+                                    <div
+                                        key={particle.id}
+                                        className={`flex h-14 w-14 items-center justify-center rounded-2xl border-2 text-2xl shadow-md transition ${isFound ? "micro-found-pop border-cyan-200 bg-white" : "border-white/60 bg-slate-200 text-slate-400"}`}
+                                        title={particle.label}
+                                    >
+                                        {isFound ? particle.sticker : "?"}
+                                    </div>
+                                )
+                            })}
+                        </div>
+
+                        <div className="rounded-2xl bg-cyan-100 px-4 py-3 text-sm font-black text-cyan-900 md:hidden">
+                            Sonar {signalStrength}% · {getSignalLine()}
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {activeParticle && modalStage === "narrator" && (
+                <div className="fixed bottom-5 right-5 z-[90] w-[min(360px,calc(100vw-2rem))] rounded-[1.5rem] border-4 border-white bg-cyan-50/95 p-3 shadow-2xl backdrop-blur-md md:bottom-6 md:right-6">
+                    <div className="flex items-center gap-3">
+                        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.2rem] bg-gradient-to-br ${activeParticle.glowClass} text-3xl shadow-lg`}>
+                            {activeParticle.icon}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-black uppercase tracking-[0.28em] text-cyan-700">Narrator aktiv</p>
+                            <p className="mt-1 text-sm font-black leading-tight text-slate-900">{activeParticle.shortLabel}: Schau kurz zum Erzähler.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setModalStage("solution")}
+                            className="shrink-0 rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-black text-white shadow-lg transition hover:bg-cyan-700 active:scale-95"
+                        >
+                            Weiter
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {activeParticle && modalStage !== "narrator" && (
+                <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+                    <div className="relative w-full max-w-4xl overflow-hidden rounded-[2.1rem] border-4 border-white bg-white shadow-2xl">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(103,232,249,0.33),transparent_28%),radial-gradient(circle_at_80%_80%,rgba(186,230,253,0.55),transparent_30%)]" />
+                        <div className="relative p-4 md:p-5">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className={`flex h-20 w-20 items-center justify-center rounded-[2rem] bg-gradient-to-br ${activeParticle.glowClass} text-5xl shadow-xl`}>
+                                        {activeParticle.icon}
+                                    </div>
+                                    <div>
+                                        <p className="text-[11px] font-black uppercase tracking-[0.34em] text-cyan-700">Mini-Aufgabe</p>
+                                        <h2 className="text-2xl font-black text-slate-950 md:text-3xl">{activeParticle.mini.title}</h2>
+                                        <p className="mt-1 max-w-xl text-sm font-semibold text-slate-600">{activeParticle.source}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={closeActiveModal}
+                                    className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-700 shadow transition hover:bg-slate-200 active:scale-95"
+                                >
+                                    Schließen
+                                </button>
+                            </div>
+
+                            {modalStage === "challenge" && (
+                                <div className="mt-5 grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+                                    <div className="relative min-h-[300px] overflow-hidden rounded-[1.75rem] border-4 border-cyan-100 bg-[linear-gradient(180deg,#dffcff_0%,#7dd3fc_55%,#0e7490_100%)] shadow-inner">
+                                        <div className="absolute inset-0 opacity-30 bg-[linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px)] bg-[length:46px_46px]" />
+                                        <div className="absolute left-4 top-4 rounded-full bg-white/80 px-3 py-2 text-xs font-black text-cyan-900 shadow">
+                                            {activeParticle.mini.scene} Richtige Spuren antippen
+                                        </div>
+
+                                        {activeParticle.mini.items.map((item, index) => {
+                                            const selected = challengeHits.includes(item.id)
+                                            const wrong = wrongItems.includes(item.id)
+
+                                            return (
+                                                <button
+                                                    key={item.id}
+                                                    type="button"
+                                                    onClick={() => handleChallengeItemClick(item)}
+                                                    className={`absolute z-10 flex h-16 w-16 md:h-20 md:w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[1.3rem] border-4 text-3xl md:text-4xl shadow-xl transition hover:scale-110 active:scale-95 ${selected ? "border-emerald-200 bg-emerald-100 opacity-70" : "border-white/80 bg-white/80"} ${wrong ? "micro-item-wiggle border-rose-200 bg-rose-100" : ""}`}
+                                                    style={{
+                                                        left: `${item.x}%`,
+                                                        top: `${item.y}%`,
+                                                        animationDelay: `${index * 0.12}s`,
+                                                    }}
+                                                    aria-label={item.label}
+                                                    title={item.label}
+                                                    disabled={selected}
+                                                >
+                                                    <span className={selected ? "grayscale" : ""}>{selected ? "✅" : item.emoji}</span>
+                                                </button>
+                                            )
+                                        })}
+
+                                        <div className="pointer-events-none absolute bottom-4 left-4 right-4 rounded-[1.25rem] bg-white/85 p-3 text-center text-xs font-black text-slate-700 shadow-lg md:text-sm">
+                                            {activeParticle.mini.instruction}
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-[1.75rem] bg-slate-950 p-4 text-white shadow-inner">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="text-[11px] font-black uppercase tracking-[0.3em] text-cyan-200">Mini-Filter</p>
+                                            <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-slate-950">
+                                                {challengeHits.length}/{getCorrectItems(activeParticle).length}
+                                            </span>
+                                        </div>
+                                        <p className="mt-3 text-base font-black md:text-lg">{activeParticle.mini.collectLabel}</p>
+                                        <div className="mt-4 grid grid-cols-3 gap-2">
+                                            {getCorrectItems(activeParticle).map((item) => {
+                                                const selected = challengeHits.includes(item.id)
+
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className={`flex h-16 items-center justify-center rounded-2xl border-2 text-2xl md:h-20 md:text-3xl transition ${selected ? "micro-found-pop border-emerald-200 bg-emerald-100 text-slate-950" : "border-white/15 bg-white/10 text-white/40"}`}
+                                                    >
+                                                        {selected ? item.emoji : "?"}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                        <div className="mt-4 rounded-[1.25rem] bg-white/10 p-3 text-xs font-semibold leading-relaxed text-cyan-50 md:text-sm">
+                                            Nur Mikroplastik sichern — Tiere und Pflanzen bleiben frei.
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+
+                            {modalStage === "solution" && (
+                                <div className="mt-5">
+                                    <div className="rounded-[1.5rem] bg-amber-50 p-4 text-center shadow-inner">
+                                        <p className="text-[11px] font-black uppercase tracking-[0.32em] text-amber-700">Schutzidee</p>
+                                        <h3 className="mt-1 text-xl font-black text-slate-950 md:text-2xl">Welche Karte hilft wirklich?</h3>
+                                    </div>
+                                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                                        {activeParticle.solutions.map((solution) => {
+                                            const isWrong = wrongSolutionId === solution.id
+
+                                            return (
+                                                <button
+                                                    key={solution.id}
+                                                    type="button"
+                                                    onClick={() => handleSolutionClick(solution)}
+                                                    className={`rounded-[1.7rem] border-4 bg-white p-4 text-left shadow-xl transition hover:-translate-y-1 hover:border-cyan-200 active:scale-95 ${isWrong ? "micro-card-wiggle border-rose-200 bg-rose-50" : "border-cyan-50"}`}
+                                                >
+                                                    <div className="text-5xl">{solution.icon}</div>
+                                                    <h4 className="mt-3 text-lg font-black text-slate-950 md:text-xl">{solution.title}</h4>
+                                                    <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-600 md:text-sm">{solution.text}</p>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {modalStage === "sticker" && (
+                                <div className="mt-5 rounded-[1.75rem] bg-emerald-50 p-6 text-center shadow-inner">
+                                    <div className="micro-badge-pulse mx-auto flex h-28 w-28 md:h-32 md:w-32 items-center justify-center rounded-[2.4rem] border-4 border-white bg-white text-7xl shadow-2xl">
+                                        {activeParticle.sticker}
+                                    </div>
+                                    <h3 className="mt-4 text-2xl font-black text-slate-950 md:text-3xl">Sticker eingeklebt!</h3>
+                                    <p className="mx-auto mt-2 max-w-xl text-sm font-semibold leading-relaxed text-slate-700 md:text-base">
+                                        {activeParticle.shortLabel} ist jetzt im Forschungsalbum. Du hast Fund, Ursache und Schutzidee verbunden.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={closeActiveModal}
+                                        className="mt-5 rounded-3xl bg-emerald-600 px-7 py-3 text-base md:text-lg font-black text-white shadow-xl transition hover:-translate-y-1 hover:bg-emerald-700 active:scale-95"
+                                    >
+                                        {foundIds.length === totalCount ? "Finale ansehen" : "Weiter tauchen"}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     )
 }
